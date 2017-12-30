@@ -16,3 +16,7 @@ START_PIECES_POSITION = {
     "A1": "R", "B1": "N", "C1": "B", "D1": "Q", "E1": "K", "F1": "B", "G1": "N", "H1": "R"
 }
 
+SHORT_NAME = {
+	'R':'Rook', 'N':'Knight', 'B':'Bishop',
+	'Q':'Queen', 'K':'King', 'P':'Pawn'
+}

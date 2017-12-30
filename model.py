@@ -1,4 +1,5 @@
 from configurations import *
+import piece
 
 # inherits from dictionary class in python
 class Model(dict):

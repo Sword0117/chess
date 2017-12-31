@@ -67,7 +67,7 @@ class King(Piece):
 	max_distance = 1
 
 	def moves_available(self, current_position):
-		return super().moves_available(current_position.upper(), self.directions, self.max_distance)
+		return super().moves_available(current_position, self.directions, self.max_distance)
 	
 
 class Queen(Piece):
@@ -78,7 +78,7 @@ class Queen(Piece):
 	max_distance = 8
 
 	def moves_available(self, current_position):
-		return super().moves_available(current_position.upper(), self.directions, self.max_distance)
+		return super().moves_available(current_position, self.directions, self.max_distance)
 
 class Rook(Piece):
 	# max moves = 8
@@ -88,7 +88,7 @@ class Rook(Piece):
 	max_distance = 8
 
 	def moves_available(self, current_position):
-		return super().moves_available(current_position.upper(), self.directions, self.max_distance)
+		return super().moves_available(current_position, self.directions, self.max_distance)
 
 class Bishop(Piece):
 	# max moves = 8
@@ -98,7 +98,7 @@ class Bishop(Piece):
 	max_distance = 8
 
 	def moves_available(self, current_position):
-		return super().moves_available(current_position.upper(), self.directions, self.max_distance)
+		return super().moves_available(current_position, self.directions, self.max_distance)
 
 # only knight can jump over others
 class Knight(Piece):
@@ -107,7 +107,7 @@ class Knight(Piece):
 		model = self.model
 		allowed_moves = []
 		start_position = get_numeric_notation(current_position.upper())
-		piece = model.get(pos.upper())
+		piece = model.get(current_position)
 		for x, y in KNIGHT_POSITIONS:
 			destination = start_position[0] + x, start_position[1] + y
 			if(model.get_alphanumeric_position(destination) not in model.all_occupied_positions_occupied_by_color(piece.color)):
@@ -141,7 +141,7 @@ class Pawn(Piece):
 
 		#attacking
 		for a in range(-1, 2, 2):
-			attack = start_position[0] + direction, start_position[1] + allowed_moves
+			attack = start_position[0] + direction, start_position[1] + a
 			if model.get_alphanumeric_position(attack) in model.all_occupied_positions_occupied_by_color(enemy):
 				allowed_moves.append(attack)
 

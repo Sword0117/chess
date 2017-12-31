@@ -1,8 +1,11 @@
 from configurations import *
 import piece
+from copy import deepcopy
+import exceptions
 
 # inherits from dictionary class in python
 class Model(dict):
+
 	captured_pieces = { 'white': [], 'black': [] }
 	player_turn = None
 	# number of turns played since the last capture or the pawn movement
@@ -41,7 +44,7 @@ class Model(dict):
 			self[position].keep_reference(self)
 		self.player_turn = 'white'
 
-	def all_positions_occupied_by_color(self, color):
+	def all_occupied_positions_occupied_by_color(self, color):
 		result = []
 		for position in self.keys():
 			piece = self.get_piece_at(position)
@@ -49,6 +52,86 @@ class Model(dict):
 				result.append(position)
 		return result
 
-	def all_positions_occupied(self):
-		return self.all_positions_occupied_by_color('white') + self.all_positions_occupied_by_color('black')
+	def all_occupied_positions(self):
+		return self.all_occupied_positions_occupied_by_color('white') + self.all_occupied_positions_occupied_by_color('black')
+
+	# give all moves available of particular color
+	def get_all_available_moves(self, color):
+		result = []
+		for position in self.keys():
+			piece = self.get_piece_at(position)
+			if piece and piece.color == color:
+				moves = piece.moves_available(position)
+				if moves:
+					result.extend(moves)
+		return result
+
+	# finding current position of king
+	def get_alphanumeric_position_of_king(self, color):
+		for position in self.keys():
+			this_piece = self.get_piece_at(position)
+			if isinstance(this_piece, piece.King) and this_piece.color == color:
+				return position
+
+	def is_king_under_check(self, color):
+		position_of_king = self.get_alphanumeric_position_of_king(color)
+		opponent = ('black' if color == 'white' else 'white')
+		return position_of_king in self.get_all_available_moves(opponent)
+
+	# only move if the move is valid
+	def pre_move_validation(self, initial_pos, final_pos):
+	    initial_pos, final_pos = initial_pos.upper(), final_pos.upper()
+	    piece = self.get_piece_at(initial_pos)
+	    try:
+	    	piece_at_destination = self.get_piece_at(final_pos)
+	    except:
+	    	piece_at_destination = None
+	    if self.player_turn != piece.color:
+	    	raise exceptions.NotYourTurn("Not " + piece.color + "'s turn!")
+	    enemy = ('white' if piece.color == 'black' else 'black')
+	    moves_available = piece.moves_available(initial_pos)
+	    if final_pos not in moves_available:
+	    	raise exceptions.InvalidMove
+	    if self.get_all_available_moves(enemy):
+	    	# this exception raise if we are on the verge to perform a move 
+	    	# which may cause a check in next move of opossite player
+	    	if self.will_move_cause_check(initial_pos, final_pos):
+	    		raise exceptions.Check
+	    if not moves_available and self.is_king_under_check(piece.color):
+	    	raise exceptions.CheckMate
+	    elif not moves_available:
+	    	raise exceptions.Draw
+	    else:
+	    	self.move(initial_pos, final_pos)
+	    	self.update_game_statistics(piece, piece_at_destination, initial_pos, final_pos)
+	    	self.change_player_turn(piece.color)
+
+	def will_move_cause_check(self, start_position, end_position):
+		tmp = deepcopy(self)
+		# in the copy which we made we move the piece
+		tmp.move(start_position, end_position)
+		# now check if the move made on actual board can cause check
+		return tmp.is_king_under_check(self[start_position].color)
+
+	def move(self, start_pos, final_pos):
+		self[final_pos] = self.pop(start_pos, None)
+
+	def update_game_statistics(self, piece, dest, start_pos, end_pos):
+		if piece.color == 'black':
+			self.fullmove_number += 1
+		self.halfmove_clock += 1
+		abbr = piece.name
+		if abbr == 'pawn':
+			abbr = ''
+			self.halfmove_clock = 0
+		if dest is None:
+			move_text = abbr + end_pos.lower()
+		else:
+			move_text = abbr + 'x' + end_pos.lower()
+			self.halfmove_clock = 0
+		self.history.append(move_text)
+
+	def change_player_turn(self, color):
+		enemy = ('white' if color == 'black' else 'black')
+		self.player_turn = enemy
 

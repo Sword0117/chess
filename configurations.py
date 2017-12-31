@@ -20,3 +20,8 @@ SHORT_NAME = {
 	'R':'Rook', 'N':'Knight', 'B':'Bishop',
 	'Q':'Queen', 'K':'King', 'P':'Pawn'
 }
+
+ORTHOGONAL_POSITIONS = ((-1, 0), (0, 1), (1, 0), (0, -1))
+DIAGONAL_POSITIONS = ((-1, -1), (-1, 1), (1, -1), (1, 1))
+# 8 positions for knight
+KNIGHT_POSITIONS = ((-2,-1),(-2,1),(-1,-2),(-1,2),(1,-2),(1,2),(2,-1),(2,1))

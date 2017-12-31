@@ -40,3 +40,15 @@ class Model(dict):
 			self[position] = piece.create_piece(value)
 			self[position].keep_reference(self)
 		self.player_turn = 'white'
+
+	def all_positions_occupied_by_color(self, color):
+		result = []
+		for position in self.keys():
+			piece = self.get_piece_at(position)
+			if piece.color == color:
+				result.append(position)
+		return result
+
+	def all_positions_occupied(self):
+		return self.all_positions_occupied_by_color('white') + self.all_positions_occupied_by_color('black')
+

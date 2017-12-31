@@ -4,14 +4,19 @@ from tkinter import *
 from tkinter import messagebox
 
 class View():
+
+    images = {}
     board_color_1 = BOARD_COLOR_1
     board_color_2 = BOARD_COLOR_2
+    
     def __init__(self, parent, controller):
 	    self.controller = controller
 	    self.parent = parent
 	    self.create_chess_base()
 	    self.canvas.bind("<Button-1>", self.on_square_clicked)
+	    self.start_new_game()
 
+	#### Here goes the base logic ####
     def create_chess_base(self):
 	    self.create_top_menu()
 	    self.create_canvas()
@@ -94,6 +99,35 @@ class View():
 	    clicked_row = event.x // col_size
 	    clicked_column = 7 - (event.y // row_size)
 	    return (clicked_row, clicked_column)
+
+	#### Here goes logic to place pieces on board ####
+
+    # given chess piece and position it draws the piece.
+    def draw_single_piece(self, position, piece):
+        x, y = self.controller.get_numeric_notation(position)
+        if piece:
+            filename = "pieces_image/{}_{}.png".format(piece.name.lower(), piece.color)
+            if filename not in self.images:
+            	self.images[filename] = PhotoImage(file=filename)
+            x0, y0 = self.calculate_piece_coordinate(x, y)
+            self.canvas.create_image(x0, y0, image=self.images[filename], tags=("occupied"), anchor="c")
+
+    # returns center of the piece to be placed.
+    def calculate_piece_coordinate(self, row, col):
+        x0 = (col * DIMENSION_OF_EACH_SQUARE) + int(DIMENSION_OF_EACH_SQUARE / 2)
+        y0 = ((7 - row) * DIMENSION_OF_EACH_SQUARE) + int(DIMENSION_OF_EACH_SQUARE / 2)
+        return (x0, y0)
+            
+    def draw_all_pieces(self):
+        self.canvas.delete("occupied") # removes all currently placed pieces at any random positions
+        for position, piece in self.controller.get_all_pieces_on_chess_board():
+            self.draw_single_piece(position, piece)
+
+    def start_new_game(self):
+        self.controller.reset_game_data()
+        self.controller.reset_to_initial_locations()
+        self.draw_all_pieces()
+        self.info_label.config(text=" White to Start the Game ")
 
 def main(controller):
     root = Tk()

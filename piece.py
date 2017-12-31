@@ -1,6 +1,10 @@
 # exttension to the model class to handle individual pieces
 from configurations import *
+import exceptions
+import sys
 
+# corresponding to the piece function returns the name of the piece
+# for ex - K => "King"
 def create_piece(piece, color='white'):
 	if isinstance(piece, str):
 		if piece.upper() in SHORT_NAME.keys():
@@ -10,6 +14,10 @@ def create_piece(piece, color='white'):
 		if piece in SHORT_NAME.values():
 			return eval("{classname}(color)".format(classname=piece))
 	raise exceptions.ChessError("invalid piece name: '{}'".format(piece))
+
+def get_numeric_notation(rowcol):
+	row, col = rowcol
+	return int(col)-1, X_AXIS_LABELS.index(row)
 
 class Piece():
 

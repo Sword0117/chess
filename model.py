@@ -8,11 +8,11 @@ class Model(dict):
 	# number of turns played since the last capture or the pawn movement
 	halfmove_clock = 0 
 	# increments after each every black move
-	full_move_number = 1
+	fullmove_number = 1
 	history = []
 
 	def __init__(self):
-		pass
+		self.reset_to_initial_locations()
 
 	def get_piece_at(self, position):
 		return self.get(position)
@@ -26,3 +26,17 @@ class Model(dict):
 	def is_on_board(self, rowcol):
 		row, col = rowcol
 		return (0 <= row <= 7) and (0 <= col <= 7)
+
+	def reset_game_data(self):
+		captured_pieces = { 'white': [], 'black': [] }
+		player_turn = None
+		halfmove_clock = 0 
+		fullmove_number = 1
+		history = []
+
+	def reset_to_initial_locations(self):		
+		self.clear()
+		for position, value in START_PIECES_POSITION.items():
+			self[position] = piece.create_piece(value)
+			self[position].keep_reference(self)
+		self.player_turn = 'white'

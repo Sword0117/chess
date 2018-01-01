@@ -3,6 +3,8 @@ import controller
 from tkinter import *
 from tkinter import messagebox
 import exceptions
+import preferenceswindow
+import os
 
 class View():
 
@@ -19,6 +21,19 @@ class View():
         self.create_chess_base()
         self.canvas.bind("<Button-1>", self.on_square_clicked)
         self.start_new_game()
+
+    def reload_colors(self, color_1, color_2, highlight_color):
+        self.board_color_1 = color_1
+        self.board_color_2 = color_2
+        self.highlight_color = highlight_color
+        self.draw_board()
+        self.draw_all_pieces()
+
+    def on_preference_menu_clicked(self):
+        self.show_preferences_window()
+
+    def show_preferences_window(self):
+        preferenceswindow.PreferencesWindow(self)
 
     def create_bottom_frame(self):
         self.bottom_frame = Frame(self.parent, height=64)
@@ -49,9 +64,6 @@ class View():
         self.about_menu.add_command(label="About", command=self.on_about_menu_clicked)
         self.menu_bar.add_cascade(label="About", menu=self.about_menu)
         self.parent.config(menu=self.menu_bar)
-
-    def on_preference_menu_clicked(self):
-        pass
     
     def create_canvas(self):
         canvas_width = NUMBER_OF_COLUMNS * DIMENSION_OF_EACH_SQUARE
@@ -136,7 +148,7 @@ class View():
                 x1, y1 = self.get_x_y_coordinate(row, col)
                 x2, y2 = x1 + DIMENSION_OF_EACH_SQUARE, y1 + DIMENSION_OF_EACH_SQUARE
                 if(self.all_squares_to_be_highlighted and (row, col) in self.all_squares_to_be_highlighted):
-                    self.canvas.create_rectangle(x1, y1, x2, y2,  fill=HIGHLIGHT_COLOR)
+                    self.canvas.create_rectangle(x1, y1, x2, y2,  fill=self.highlight_color)
                 else:
                     self.canvas.create_rectangle(x1, y1, x2, y2,  fill=current_color)
                 current_color = self.get_alternate_color(current_color)
@@ -178,6 +190,8 @@ def main(controller):
     root = Tk()
     root.title("Chess")
     View(root, controller)
+    app_icon = PhotoImage(file='app-icon.png')
+    root.tk.call('wm', 'iconphoto', root._w, app_icon)
     root.mainloop()
 
 def init_new_game():

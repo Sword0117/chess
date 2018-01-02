@@ -188,6 +188,7 @@ class View():
 
 def main(controller):
     root = Tk()
+    root.resizable(width=False, height=False)
     root.title("Chess")
     View(root, controller)
     app_icon = PhotoImage(file='app-icon.png')
